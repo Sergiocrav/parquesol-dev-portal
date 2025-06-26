@@ -1,8 +1,5 @@
-from flask import Flask, jsonify, render_template_string
-
-app = Flask(__name__)
-
-# HTML template simples para o Portal do Desenvolvedor
+# Portal do Desenvolvedor ParqueSol - Simplificado para Vercel
+# Template HTML para o Portal do Desenvolvedor
 PORTAL_TEMPLATE = """
 <!DOCTYPE html>
 <html>
@@ -92,56 +89,55 @@ PORTAL_TEMPLATE = """
 </html>
 """
 
-@app.route('/')
-def home():
-    """Página principal com informações sobre os endpoints disponíveis"""
-    return jsonify({
-        'status': 'success',
-        'message': 'ParqueSol Developer Portal API',
-        'version': '1.0',
-        'endpoints': [
-            '/api/portal/',
-            '/api/portal/my-keys',
-            '/api/portal/request-api-key',
-            '/api/docs/',
-            '/api/health'
-        ]
-    })
-
-@app.route('/api/health')
-def health_check():
-    """Endpoint de verificação de saúde do sistema"""
-    return jsonify({
-        'status': 'ok',
-        'service': 'ParqueSol Developer Portal',
-        'version': '1.0',
-        'environment': 'production'
-    })
-
-@app.route('/api/portal/')
-def dev_portal_home():
-    """Portal principal do desenvolvedor"""
-    return render_template_string(PORTAL_TEMPLATE)
-
-@app.route('/api/portal/my-keys')
-def my_keys():
-    """Página para gerenciar chaves API (versão simplificada)"""
-    return "Gerenciamento de Chaves API - ParqueSol (Em desenvolvimento)"
-
-@app.route('/api/portal/request-api-key')
-def request_api_key():
-    """Página para solicitar uma nova chave API (versão simplificada)"""
-    return "Solicitar Nova Chave API - ParqueSol (Em desenvolvimento)"
-
-@app.route('/api/docs/')
-def api_docs():
-    """Documentação da API (versão simplificada)"""
-    return "Documentação da API ParqueSol (Em desenvolvimento)"
-
-# Ponto de entrada para a Vercel
-def handler(request, context):
-    return app(request, context)
-
-# Para testes locais
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8080, debug=True)
+# Formato específico para funções serverless da Vercel
+def handler(event, context):
+    """
+    Handler para função serverless da Vercel.
+    Processa requisições com base no path e retorna o conteúdo apropriado.
+    """
+    # Extrair o caminho da requisição
+    path = event.get('path', '/')
+    
+    # Roteamento básico
+    if path == '/':
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json'},
+            'body': '{"status":"success","message":"ParqueSol Developer Portal API","version":"1.0","endpoints":["/api/portal/","/api/portal/my-keys","/api/portal/request-api-key","/api/docs/","/api/health"]}'
+        }
+    elif path == '/api/health':
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json'},
+            'body': '{"status":"ok","service":"ParqueSol Developer Portal","version":"1.0","environment":"production"}'
+        }
+    elif path == '/api/portal/' or path == '/api/portal':
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'text/html'},
+            'body': PORTAL_TEMPLATE
+        }
+    elif path == '/api/portal/my-keys':
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'text/html'},
+            'body': 'Gerenciamento de Chaves API - ParqueSol (Em desenvolvimento)'
+        }
+    elif path == '/api/portal/request-api-key':
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'text/html'},
+            'body': 'Solicitar Nova Chave API - ParqueSol (Em desenvolvimento)'
+        } 
+    elif path == '/api/docs/' or path == '/api/docs':
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'text/html'},
+            'body': 'Documentação da API ParqueSol (Em desenvolvimento)'
+        }
+    else:
+        return {
+            'statusCode': 404,
+            'headers': {'Content-Type': 'text/plain'},
+            'body': '404 Not Found'
+        }
